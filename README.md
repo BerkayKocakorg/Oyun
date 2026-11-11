@@ -1,8 +1,20 @@
 # Kartopu Taburu
 
 Mobil tarayıcıda çalışan, tek elle oynanan 3D bir "şerit seç – orduyu büyüt – hattı savun" oyunu.
-Penguen taburunu buz yolunda yönlendir, kapılardan geçerek büyüt, kor sürülerini kartopuyla söndür
-ve bölüm sonunda Volkan Devi'ne karşı hattı tut.
+Komik şapkalı penguen taburunu buz yolunda yönlendir, kapılardan geçerek büyüt, düşman sürülerini kartopuyla
+havaya uçur ve bölüm sonunda sana laf atan boss'a karşı hattı tut.
+
+## Rakipler
+
+Her bölümün sonunda sırayla beş boss'tan biri bekler; ana ekranda sana laf atar, oyun başlayınca yolun sonuna kaçar.
+
+| Boss | Numarası |
+| --- | --- |
+| Kızgın Çaydanlık | İnce belli çay bardağı ordusuyla gelir, üstüne kaynar çay döker |
+| Fön Makinesi | Sıcak hava şeridi açar ve taburu içine doğru çeker |
+| Kızgın Ütü | İşaretlediği şeritten hızla kayıp taburu ütüler |
+| Acı Biber Paşa | Zikzak yürür, hızlı küçük biber dalgaları salar |
+| Volkan Devi | Lav topu yağdırır |
 
 ## Nasıl oynanır
 
@@ -12,7 +24,9 @@ ve bölüm sonunda Volkan Devi'ne karşı hattı tut.
 - **Buz blokları:** Üstündeki sayı kadar isabetle kırılır. Kırmadan çarparsan penguen kaybedersin.
 - **Şerit seçimi:** Bir şeritte güvenli kapılar, diğerinde kor sürüsü ve büyük ödül vardır.
 - **Lav havuzları:** Üstünden geçen penguenler erir, etrafından dolaş.
-- **Son savunma:** Tabur çizgide durur. Altın sandıkları vurarak takviye al, Volkan Devi sana ulaşmadan söndür.
+- **Dev kartopu:** "İT BENİ!" yazan topa dokun; yuvarlanıp önündeki sürüyü bowling gibi devirir.
+- **Son savunma:** Tabur çizgide durur. Altın sandıkları vurarak takviye al, boss'un saldırılarından kaç ve sana ulaşmadan yen.
+  Kazanınca tabur halay çeker.
 - **Yükseltmeler:** Kazandığın altınla başlangıç taburunu, kartopu gücünü, atış hızını ve ganimeti artır.
   İlerleme cihazda saklanır.
 

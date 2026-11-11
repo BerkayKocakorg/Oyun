@@ -14,10 +14,11 @@
       title1: 'KARTOPU', title2: 'TABURU', tagline: 'Şeridini seç · Taburu büyüt · Hattı savun',
       level: 'Bölüm', play: 'OYNA', next: 'DEVAM', retry: 'TEKRAR DENE',
       winTitle: 'BÖLÜM TAMAM!', loseTitle: 'TABUR DAĞILDI',
-      rowSaved: 'Ayakta kalan penguen', rowKills: 'Söndürülen kor', rowCoins: 'Kazanılan altın',
+      rowSaved: 'Ayakta kalan penguen', rowKills: 'Alt edilen düşman', rowCoins: 'Kazanılan altın',
       loseTip: 'Altınlarınla taburu güçlendir, sonra tekrar dene.',
       hintDrag: 'Sürükle, taburu yönlendir', bossName: 'VOLKAN DEVİ',
-      winSub: '{n}. bölüm temizlendi', loseSub: 'Yolun %{p} kadarını geçtin',
+      winSub: '{b} pes etti!', loseSub: 'Yolun %{p} kadarını geçtin. {f}',
+      rival: 'RAKİP', pushMe: 'İT BENİ!', strike: 'STRIKE!', ironed: 'ÜTÜLENDİN!', spicy: 'ACI!',
       bLanes: 'ŞERİDİNİ SEÇ!', bRush: 'KOR DALGASI!', bCharge: 'MOR KAPIYI VUR, BÜYÜT!',
       bPools: 'LAVDAN KAÇ!', bFinale: 'SON SAVUNMA!', bGo: 'HAYDİ!',
       uStart: 'Tabur', uStartD: '{n} penguenle başla',
@@ -31,10 +32,11 @@
       title1: 'SNOWBALL', title2: 'BATTALION', tagline: 'Pick a lane · Grow the squad · Hold the line',
       level: 'Level', play: 'PLAY', next: 'CONTINUE', retry: 'TRY AGAIN',
       winTitle: 'LEVEL CLEAR!', loseTitle: 'SQUAD WIPED OUT',
-      rowSaved: 'Penguins standing', rowKills: 'Embers put out', rowCoins: 'Gold earned',
+      rowSaved: 'Penguins standing', rowKills: 'Enemies beaten', rowCoins: 'Gold earned',
       loseTip: 'Spend your gold on upgrades, then try again.',
       hintDrag: 'Drag to steer the squad', bossName: 'VOLCANO GIANT',
-      winSub: 'Level {n} cleared', loseSub: 'You made it {p}% of the way',
+      winSub: '{b} gave up!', loseSub: 'You made it {p}% of the way. {f}',
+      rival: 'RIVAL', pushMe: 'PUSH ME!', strike: 'STRIKE!', ironed: 'IRONED FLAT!', spicy: 'SPICY!',
       bLanes: 'PICK YOUR SIDE!', bRush: 'EMBER WAVE!', bCharge: 'SHOOT THE PURPLE GATE!',
       bPools: 'DODGE THE LAVA!', bFinale: 'LAST STAND!', bGo: 'GO!',
       uStart: 'Squad', uStartD: 'Start with {n}',
@@ -52,6 +54,62 @@
     return s;
   };
   document.documentElement.lang = LANG;
+
+  /* ------------------------------------------------------------------ */
+  /* Cast: the bosses and what everyone says                             */
+  /* ------------------------------------------------------------------ */
+  const BOSSES = [
+    {
+      id: 'teapot', attack: 'puddle', minion: 'glass', scale: 5.2, top: 5.5, r: 2.0, speed: 1.5, zone: [0x6b2a0c, 0xc9651f],
+      name: { tr: 'KIZGIN ÇAYDANLIK', en: 'ANGRY TEAPOT' },
+      taunt: { tr: ['Çay demlendi, sıra sizde!', 'Kaç şeker atayım?', 'Fokur fokur geliyorum!'], en: ['Tea is ready. You are next!', 'One lump or two?', 'I am boiling over!'] },
+      shout: { tr: ['Çaylar benden!', 'Tavşan kanı!'], en: ['Tea is on me!', 'Scalding hot!'] },
+      ouch: { tr: 'Ah, kapağım!', en: 'Ow, my lid!' },
+    },
+    {
+      id: 'dryer', attack: 'beam', minion: 'ember', scale: 5.4, top: 5.7, r: 1.8, speed: 1.5, zone: [0xb3541e, 0xff8a1f],
+      name: { tr: 'FÖN MAKİNESİ', en: 'HAIR DRYER' },
+      taunt: { tr: ['Saçınız yok ama fönleyeceğim!', 'Üçüncü kademe açık!', 'Kuaföre hoş geldiniz!'], en: ['No hair? I will blow-dry you anyway!', 'Setting three: MAX!', 'Welcome to the salon!'] },
+      shout: { tr: ['FÖÖÖÖN!', 'Sıcak hava dalgası!'], en: ['WHOOOSH!', 'Heat wave!'] },
+      ouch: { tr: 'Kablom!', en: 'My cable!' },
+    },
+    {
+      id: 'iron', attack: 'dash', minion: 'ember', scale: 6.2, top: 4.1, r: 2.2, speed: 1.4, zone: [0xb3261e, 0xff3b3b],
+      name: { tr: 'KIZGIN ÜTÜ', en: 'HOT IRON' },
+      taunt: { tr: ['Sizi kırışıksız yapacağım!', 'Dümdüz olacaksınız!', 'Buhar ayarı: en yüksek!'], en: ['I will press you flat!', 'No wrinkles allowed!', 'Steam setting: MAX!'] },
+      shout: { tr: ['Ütü geliyoooor!', 'Yol verin!'], en: ['Iron coming through!', 'Out of my way!'] },
+      ouch: { tr: 'Tabanım çizildi!', en: 'You scratched my plate!' },
+    },
+    {
+      id: 'pepper', attack: 'summon', minion: 'pepper', scale: 5.6, top: 6.5, r: 1.6, speed: 1.5, zone: [0x8a1212, 0xe3201f],
+      name: { tr: 'ACI BİBER PAŞA', en: 'CHILI PASHA' },
+      taunt: { tr: ['Ağzınız yanacak!', 'Acısız olmaz!', 'İsot gibi geliyorum!'], en: ['Your mouths will burn!', 'No pain, no flavour!', 'Extra spicy, coming up!'] },
+      shout: { tr: ['Acı sos!', 'Bol acılı!'], en: ['Hot sauce!', 'Extra spicy!'] },
+      ouch: { tr: 'Tohumlarım!', en: 'My seeds!' },
+    },
+    {
+      id: 'volcano', attack: 'meteor', minion: 'ember', scale: 5.4, top: 5.4, r: 1.9, speed: 1.5, zone: [0x7a1d0c, 0xff5a1f],
+      name: { tr: 'VOLKAN DEVİ', en: 'VOLCANO GIANT' },
+      taunt: { tr: ['Buzunuz erisin!', 'Bu kadar penguen bana kahvaltı!', 'Lav gibi kaynıyorum!'], en: ['Melt, little ice cubes!', 'Penguins for breakfast!', 'I am boiling inside!'] },
+      shout: { tr: ['Lav yağmuru!', 'Taş gibi!'], en: ['Lava rain!', 'Rock and roll!'] },
+      ouch: { tr: 'Kraterim!', en: 'My crater!' },
+    },
+  ];
+  const QUIPS = {
+    flee: { tr: ['Yakalayamazsınız!', 'Sonda görüşürüz!', 'Hadi gelin bakalım!'], en: ['Catch me if you can!', 'See you at the end!', 'Come and get me!'] },
+    start: { tr: ['Hadi beyler!', 'Üşüdüm ama belli etmiyorum.', 'Kim itti beni?!', 'Mesai başladı.'], en: ['Let us go, lads!', 'I am cold but hiding it.', 'Who pushed me?!', 'Shift has started.'] },
+    grow: { tr: ['Kalabalık olduk!', 'Yoklama alıyorum...', 'Servis kaçta?', 'Bu sayıyla halay kurulur.'], en: ['Getting crowded!', 'Roll call...', 'When is lunch?', 'Enough of us for a conga line.'] },
+    hurt: { tr: ['AAA!', 'Mehmet gitti!', 'Sigortam var mıydı?', 'Tüylerim!'], en: ['AAAH!', 'We lost Kevin!', 'Am I insured?', 'My feathers!'] },
+    finale: { tr: ['Bu ne ya?!', 'Annem bunu duymasın.', 'Kim çağırdı bunu?'], en: ['What IS that?!', 'Do not tell my mum.', 'Who invited this?'] },
+    win: { tr: ['Halaya!', 'Çek çek çek!', 'Oley!'], en: ['Dance time!', 'Too easy!', 'Hooray!'] },
+    roll: { tr: ['Yuvarlaaa!', 'Bowling zamanı!'], en: ['Roll it!', 'Bowling time!'] },
+    gloat: { tr: ['Buz gibi kaldınız!', 'Sıradaki gelsin!', 'Tatlı niyetine yedim.'], en: ['Stay frosty!', 'Next, please!', 'Had you for dessert.'] },
+    loseFun: { tr: ['Geriye bir su birikintisi kaldı.', 'Penguenler eve dönmek istiyor.', 'Bu sıcağa gelemedik.', 'Tabur buhar oldu.'], en: ['Only a puddle is left.', 'The penguins want to go home.', 'Too hot to handle.', 'The squad went up in steam.'] },
+  };
+  const pick = (o) => {
+    const a = o[LANG] || o.tr;
+    return Array.isArray(a) ? a[Math.floor(Math.random() * a.length)] : a;
+  };
   document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
   $('mute').setAttribute('aria-label', t('sound'));
 
@@ -117,9 +175,9 @@
     o.connect(g); g.connect(master);
     o.start(t0); o.stop(t0 + dur + 0.02);
   }
-  function noise(dur, vol, freq) {
+  function noise(dur, vol, freq, delay) {
     if (!ac || save.mute || silent) return;
-    const t0 = ac.currentTime;
+    const t0 = ac.currentTime + (delay || 0);
     const s = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain();
     s.buffer = noiseBuf;
     f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = 0.8;
@@ -159,6 +217,20 @@
     win() { [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, 0.28, 'triangle', 0.2, 0, i * 0.11)); },
     fail() { [392, 330, 262, 196].forEach((f, i) => tone(f, 0.3, 'sawtooth', 0.1, 0, i * 0.16)); },
     roar() { tone(70, 0.9, 'sawtooth', 0.22, 40); noise(0.8, 0.2, 200); },
+    whoosh() { noise(0.6, 0.22, 700); tone(300, 0.5, 'sine', 0.08, 900); },
+    boing() { if (throttled('boing', 55)) tone(260 + Math.random() * 260, 0.16, 'sine', 0.1, 700 + Math.random() * 300); },
+    yelp() { if (throttled('yelp', 160)) tone(900, 0.28, 'triangle', 0.09, 380); },
+    rumble() { noise(0.9, 0.25, 160); },
+    strike() { [392, 523, 659, 784, 1047].forEach((f, i) => tone(f, 0.14, 'square', 0.1, 0, i * 0.06)); },
+    halay() { // davul and zurna, more or less
+      const N = [587, 740, 784, 880, 880, 784, 740, 784, 880, 932, 880, 784, 740, 622, 587, 587];
+      const st = 0.165;
+      N.forEach((f, i) => {
+        tone(f, st * 0.95, 'sawtooth', 0.085, f * 1.012, 0.25 + i * st);
+        if (i % 4 === 0 || i % 8 === 6) noise(0.12, 0.3, 130, 0.25 + i * st);
+        else if (i % 2 === 1) noise(0.04, 0.1, 2600, 0.25 + i * st);
+      });
+    },
   };
   const buzz = (ms) => { if (!silent && navigator.vibrate) { try { navigator.vibrate(ms); } catch (e) { /* ignore */ } } };
 
@@ -239,6 +311,7 @@
     const gs = parts.map((p) => {
       const g = p.g.index ? p.g.toNonIndexed() : p.g;
       g.applyMatrix4(p.m);
+      if (p.flat) g.computeVertexNormals();
       return g;
     });
     let n = 0;
@@ -264,8 +337,8 @@
   const HP = Math.PI / 2;
   const SHADOW = 0x8db9d6;
 
-  function penguinGeo() { // faces -z (away from the camera)
-    return buildGeo([
+  function penguinGeo(hat) { // faces -z (away from the camera)
+    const parts = [
       P(new T.CircleGeometry(0.3, 14), SHADOW, 0, 0.015, 0, 1, 1, 1, -HP),
       P(S(0.25), 0x1c2a59, 0, 0.34, 0, 1, 1.25, 0.95),
       P(S(0.2, 10, 6), 0xffffff, 0, 0.31, -0.1, 0.85, 1.15, 0.75),
@@ -278,10 +351,117 @@
       P(S(0.09, 8, 5), 0xff9f1c, 0.12, 0.04, -0.05, 1, 0.4, 1.4),
       P(S(0.1, 8, 5), 0x1c2a59, -0.26, 0.36, 0, 0.35, 1.5, 0.8, 0, 0, -0.35),
       P(S(0.1, 8, 5), 0x1c2a59, 0.26, 0.36, 0, 0.35, 1.5, 0.8, 0, 0, 0.35),
-      P(new T.SphereGeometry(0.205, 10, 5, 0, Math.PI * 2, 0, HP), 0xffd23f, 0, 0.75, 0),
-      P(new T.CylinderGeometry(0.215, 0.215, 0.07, 12), 0xff8a3d, 0, 0.77, 0),
-      P(S(0.07, 8, 6), 0xffffff, 0, 0.98, 0),
-    ]);
+    ];
+    if (hat === 1) { // fez
+      parts.push(
+        P(new T.CylinderGeometry(0.13, 0.17, 0.22, 12), 0xc8102e, 0, 0.9, 0),
+        P(new T.CylinderGeometry(0.012, 0.012, 0.2, 5), 0x10183a, 0.08, 1.0, 0, 1, 1, 1, 0, 0, 1.0),
+        P(S(0.035, 6, 5), 0x10183a, 0.17, 0.94, 0));
+    } else if (hat === 2) { // traffic cone
+      parts.push(
+        P(new T.BoxGeometry(0.42, 0.035, 0.42), 0xff6a13, 0, 0.8, 0),
+        P(new T.ConeGeometry(0.17, 0.44, 10), 0xff6a13, 0, 1.03, 0),
+        P(new T.CylinderGeometry(0.1, 0.128, 0.075, 10), 0xffffff, 0, 0.96, 0));
+    } else if (hat === 3) { // saucepan
+      parts.push(
+        P(new T.CylinderGeometry(0.21, 0.2, 0.18, 12), 0x9aa7b5, 0, 0.87, 0),
+        P(new T.BoxGeometry(0.26, 0.035, 0.06), 0x2a2f3a, 0.32, 0.9, 0),
+        P(S(0.035, 6, 5), 0x2a2f3a, 0, 0.98, 0));
+    } else { // beanie
+      parts.push(
+        P(new T.SphereGeometry(0.205, 10, 5, 0, Math.PI * 2, 0, HP), 0xffd23f, 0, 0.75, 0),
+        P(new T.CylinderGeometry(0.215, 0.215, 0.07, 12), 0xff8a3d, 0, 0.77, 0),
+        P(S(0.07, 8, 6), 0xffffff, 0, 0.98, 0));
+    }
+    return buildGeo(parts);
+  }
+  function angryFace(parts, y, z, s, gap) { // eyes, pupils and brows looking at +z
+    const g = gap || 0.11;
+    [-1, 1].forEach((side) => {
+      parts.push(
+        P(S(0.075 * s, 8, 6), 0xffffff, side * g, y, z),
+        P(S(0.04 * s, 6, 5), 0x1d0a0a, side * g, y, z + 0.062 * s),
+        P(new T.BoxGeometry(0.15 * s, 0.045 * s, 0.05 * s), 0x3a1410, side * g, y + 0.095 * s, z + 0.035 * s, 1, 1, 1, 0, 0, side * 0.45));
+    });
+  }
+  function flat(p) { p.flat = true; return p; }
+  function teapotParts() {
+    const red = 0xd42a2a, gold = 0xf2c14e, dark = 0x2b1a1a;
+    const p = [
+      P(new T.CircleGeometry(0.5, 16), SHADOW, 0, 0.015, 0, 1, 1, 1, -HP),
+      P(S(0.36, 14, 10), red, 0, 0.3, 0, 1.15, 0.8, 1.15),
+      P(new T.CylinderGeometry(0.3, 0.33, 0.06, 14), gold, 0, 0.57, 0),
+      P(S(0.23, 12, 8), red, 0, 0.74, 0, 1.1, 0.85, 1.1),
+      P(new T.CylinderGeometry(0.16, 0.18, 0.04, 12), gold, 0, 0.93, 0),
+      P(S(0.06, 8, 6), gold, 0, 0.99, 0),
+      P(new T.CylinderGeometry(0.045, 0.075, 0.44, 8), red, 0.5, 0.44, 0, 1, 1, 1, 0, 0, -0.95),
+      P(new T.CylinderGeometry(0.03, 0.045, 0.22, 6), red, 0.31, 0.82, 0, 1, 1, 1, 0, 0, -0.95),
+      P(new T.TorusGeometry(0.2, 0.04, 6, 12), dark, -0.46, 0.36, 0),
+      P(new T.TorusGeometry(0.11, 0.025, 6, 10), dark, -0.3, 0.76, 0),
+      P(new T.BoxGeometry(0.22, 0.045, 0.05), dark, 0, 0.19, 0.4),
+    ];
+    angryFace(p, 0.36, 0.385, 1.2, 0.14);
+    return p;
+  }
+  function dryerParts() {
+    const pink = 0xff3d9a, dark = 0x2a2140;
+    const p = [
+      P(new T.CircleGeometry(0.42, 16), SHADOW, 0, 0.015, 0, 1, 1.5, 1, -HP),
+      P(new T.CylinderGeometry(0.3, 0.3, 0.7, 14), pink, 0, 0.66, 0, 1, 1, 1, HP),
+      P(S(0.3, 12, 8), 0xd92f84, 0, 0.66, -0.35, 1, 1, 0.6),
+      P(new T.CylinderGeometry(0.27, 0.32, 0.2, 14), dark, 0, 0.66, 0.43, 1, 1, 1, HP),
+      P(new T.CircleGeometry(0.23, 14), 0xff8a1f, 0, 0.66, 0.535),
+      P(new T.CircleGeometry(0.12, 12), 0xffe08a, 0, 0.66, 0.54),
+      P(new T.BoxGeometry(0.18, 0.5, 0.22), dark, 0, 0.26, -0.12, 1, 1, 1, 0.25),
+      P(new T.BoxGeometry(0.07, 0.12, 0.05), 0xffffff, 0, 0.3, 0.0, 1, 1, 1, 0.25),
+    ];
+    angryFace(p, 1.0, 0.36, 1.55, 0.15);
+    return p;
+  }
+  function ironParts() {
+    const body = 0x6a35d9, plate = 0xe3ecf4, dark = 0x241a3a;
+    const p = [
+      P(new T.CircleGeometry(0.5, 16), SHADOW, 0, 0.015, 0, 0.9, 1.3, 1, -HP),
+      flat(P(new T.CylinderGeometry(0.5, 0.5, 0.07, 3), plate, 0, 0.1, -0.05, 0.85, 1, 1.3)),
+      flat(P(new T.CylinderGeometry(0.34, 0.47, 0.3, 3), body, 0, 0.285, -0.07, 0.85, 1, 1.3)),
+      P(new T.TorusGeometry(0.2, 0.05, 6, 12, Math.PI), dark, 0, 0.42, -0.14, 1, 1, 1, 0, HP),
+      P(new T.CylinderGeometry(0.06, 0.06, 0.06, 8), 0xff5a36, 0, 0.46, 0.14),
+    ];
+    angryFace(p, 0.4, 0.27, 1.05, 0.1);
+    return p;
+  }
+  function pepperParts(mini) {
+    const red = 0xe3201f, green = 0x2f9e44, dark = 0x1d1a1a;
+    const p = [
+      P(new T.CircleGeometry(0.3, 14), SHADOW, 0, 0.015, 0, 1, 1, 1, -HP),
+      P(new T.CylinderGeometry(0.26, 0.1, 0.62, 12), red, 0, 0.47, 0),
+      P(S(0.1, 8, 6), red, 0.02, 0.15, 0, 1, 1.2, 1),
+      P(S(0.26, 12, 8), red, 0, 0.78, 0, 1, 0.55, 1),
+      P(S(0.2, 10, 6), green, 0, 0.9, 0, 1, 0.45, 1),
+      P(new T.CylinderGeometry(0.03, 0.045, 0.2, 6), green, 0.04, 1.02, 0, 1, 1, 1, 0, 0, -0.4),
+      P(S(0.08, 6, 5), dark, -0.1, 0.05, 0.02, 1, 0.5, 1.4),
+      P(S(0.08, 6, 5), dark, 0.1, 0.05, 0.02, 1, 0.5, 1.4),
+    ];
+    angryFace(p, 0.66, 0.2, mini ? 1.05 : 0.95, 0.1);
+    if (!mini) {
+      p.push(
+        P(S(0.09, 8, 5), dark, -0.09, 0.5, 0.2, 1.6, 0.45, 0.6, 0, 0, 0.4),
+        P(S(0.09, 8, 5), dark, 0.09, 0.5, 0.2, 1.6, 0.45, 0.6, 0, 0, -0.4));
+    }
+    return p;
+  }
+  function glassParts() { // a tulip tea glass on its saucer
+    const tea = 0xb8371c;
+    const p = [
+      P(new T.CircleGeometry(0.32, 14), SHADOW, 0, 0.015, 0, 1, 1, 1, -HP),
+      P(new T.CylinderGeometry(0.3, 0.3, 0.035, 14), 0xffffff, 0, 0.04, 0),
+      P(new T.CylinderGeometry(0.22, 0.24, 0.02, 14), 0xd42a2a, 0, 0.066, 0),
+      P(new T.CylinderGeometry(0.11, 0.16, 0.24, 12), tea, 0, 0.19, 0),
+      P(new T.CylinderGeometry(0.19, 0.11, 0.24, 12), tea, 0, 0.43, 0),
+      P(new T.CylinderGeometry(0.2, 0.19, 0.07, 12), 0xfff1dc, 0, 0.585, 0),
+    ];
+    angryFace(p, 0.47, 0.15, 0.8, 0.085);
+    return p;
   }
   function emberParts(boss) { // faces +z (towards the camera)
     const parts = [
@@ -317,18 +497,54 @@
   /* Persistent instanced meshes                                         */
   /* ------------------------------------------------------------------ */
   const MAX_DRAWN = 60, MAX_EN_DRAWN = 520, MAX_PROJ = 200, MAX_PART = 420;
-  const unitMesh = new T.InstancedMesh(penguinGeo(), lambertVC(), MAX_DRAWN);
-  const enemyMesh = new T.InstancedMesh(buildGeo(emberParts(false)), lambertVC(), MAX_EN_DRAWN);
+  const HATS = 4, MAX_FLY = 90, MAX_FLYU = 22;
+  const unitMat = lambertVC();
+  const unitMeshes = [];
+  for (let h = 0; h < HATS; h++) unitMeshes.push(new T.InstancedMesh(penguinGeo(h), unitMat, MAX_DRAWN + MAX_FLYU));
+  const hatOf = new Uint8Array(MAX_DRAWN);
+  for (let i = 1; i < MAX_DRAWN; i++) {
+    const r = Math.abs(Math.sin(i * 12.9898) * 43758.5453) % 1;
+    hatOf[i] = r < 0.46 ? 0 : r < 0.64 ? 1 : r < 0.82 ? 2 : 3;
+  }
+  const MINION_GEO = { ember: buildGeo(emberParts(false)), glass: buildGeo(glassParts()), pepper: buildGeo(pepperParts(true)) };
+  const BOSS_GEO = {
+    teapot: buildGeo(teapotParts()), dryer: buildGeo(dryerParts()), iron: buildGeo(ironParts()),
+    pepper: buildGeo(pepperParts(false)), volcano: buildGeo(emberParts(true)),
+  };
+  const enemyMesh = new T.InstancedMesh(MINION_GEO.ember, lambertVC(), MAX_EN_DRAWN);
   const projMesh = new T.InstancedMesh(S(0.13, 8, 6), new T.MeshLambertMaterial({ color: 0x4fb4ff, emissive: 0x1f7fe0, emissiveIntensity: 0.9 }), MAX_PROJ);
   const partMesh = new T.InstancedMesh(new T.IcosahedronGeometry(0.13, 0), new T.MeshLambertMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.25 }), MAX_PART);
-  [unitMesh, enemyMesh, projMesh, partMesh].forEach((m) => { m.frustumCulled = false; m.count = 0; scene.add(m); });
+  unitMeshes.concat([enemyMesh, projMesh, partMesh]).forEach((m) => { m.frustumCulled = false; m.count = 0; scene.add(m); });
   enemyMesh.instanceColor = new T.InstancedBufferAttribute(new Float32Array(MAX_EN_DRAWN * 3).fill(1), 3);
   partMesh.instanceColor = new T.InstancedBufferAttribute(new Float32Array(MAX_PART * 3).fill(1), 3);
 
   const bossMat = new T.MeshLambertMaterial({ vertexColors: true, emissive: 0xffffff, emissiveIntensity: 0 });
-  const bossMesh = new T.Mesh(buildGeo(emberParts(true)), bossMat);
+  const bossMesh = new T.Mesh(BOSS_GEO.volcano, bossMat);
   bossMesh.visible = false;
   scene.add(bossMesh);
+
+  // boss attack markers: falling blobs with landing zones, and one lane stripe
+  const ZONE_N = 6;
+  const zoneRingMat = new T.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9, depthWrite: false });
+  const zoneBlobMat = new T.MeshBasicMaterial({ color: 0xff5a1f });
+  const zoneMeshes = [];
+  for (let i = 0; i < ZONE_N; i++) {
+    const ring = new T.Mesh(new T.RingGeometry(0.88, 1, 30), zoneRingMat);
+    const disc = new T.Mesh(new T.CircleGeometry(1, 28), new T.MeshBasicMaterial({ color: 0xff5a1f, transparent: true, opacity: 0.5, depthWrite: false }));
+    const blob = new T.Mesh(S(0.55, 10, 8), zoneBlobMat);
+    ring.rotation.x = disc.rotation.x = -Math.PI / 2;
+    ring.position.y = 0.05; disc.position.y = 0.04;
+    const grp = new T.Group();
+    grp.add(disc, ring);
+    grp.visible = false; blob.visible = false;
+    scene.add(grp, blob);
+    zoneMeshes.push({ grp, ring, disc, blob });
+  }
+  const stripeMat = new T.MeshBasicMaterial({ color: 0xff8a1f, transparent: true, opacity: 0.3, depthWrite: false });
+  const stripeMesh = new T.Mesh(new T.PlaneGeometry(1, 1), stripeMat);
+  stripeMesh.rotation.x = -Math.PI / 2;
+  stripeMesh.visible = false;
+  scene.add(stripeMesh);
 
   function setInst(arr, i, x, y, z, sx, sy, cs, sn) { // y-rotation (cs, sn), scale sx (x,z) and sy
     const o = i * 16;
@@ -432,7 +648,8 @@
     const coinV = Math.pow(1.08, L - 1);
     const g = 1 + Math.floor((L - 1) / 3);
     const lv = {
-      L, hpE, gates: [], barriers: [], enemies: [], walls: [], pools: [], banners: [],
+      L, hpE, gates: [], barriers: [], enemies: [], walls: [], pools: [], banners: [], balls: [],
+      def: BOSSES[(L - 1) % BOSSES.length],
       lineD: 0, len: 0, boss: null, coinV, speed: Math.min(8 + (L - 1) * 0.12, 10), spawnRate: 1,
     };
     let est = stat('start');
@@ -491,6 +708,7 @@
 
     const secRush = () => {
       lv.banners.push({ d: d - 10, key: 'bRush' });
+      if (L === 1 || rng() < 0.6) lv.balls.push({ x: L === 1 ? 0 : R(-2.4, 2.4), d: d + 5, r: 1.15, st: 0, kills: 0, d0: 0, spin: 0 });
       const M = clamp(Math.round((est * 1.7 + 3) * crowd), 6, 90);
       for (let i = 0; i < M; i++) {
         const brute = L >= 2 && M >= 20 && i % 10 === 9;
@@ -554,7 +772,10 @@
     const dps0 = est * RATE0 * hpE;
     const bossT = Math.min(12, 5 + L);
     lv.bossT = bossT;
-    lv.boss = { x: 0, d: lv.lineD + 31, hp: dps0 * bossT, maxhp: dps0 * bossT, r: 1.7, alive: true, active: false, speed: 1.5, flash: 0, drain: 0 };
+    lv.boss = {
+      x: 0, d: lv.lineD + 29, homeD: lv.lineD + 29, hp: dps0 * bossT, maxhp: dps0 * bossT, r: lv.def.r, alive: true, active: false,
+      speed: lv.def.speed, flash: 0, drain: 0, atkT: 2.4, dash: 0, retD: 0, half: false, flee: false, vs: 1,
+    };
     const M0 = clamp(Math.round(est * crowd), 6, 60);
     for (let i = 0; i < M0; i++) enemy(R(-4, 4), lv.lineD + R(20, 33), false, -1, 2.6 + R(0, 1));
     const rew = Math.max(3, Math.round(est * 0.3));
@@ -613,6 +834,7 @@
   const geoBox = new T.BoxGeometry(1, 1, 1);
   const geoPlane = new T.PlaneGeometry(1, 1);
   const geoCircle = new T.CircleGeometry(1, 28);
+  const ballGeo = new T.IcosahedronGeometry(1, 2);
 
   function box(mat, w, h, dp, x, y, z, parent) {
     const m = new T.Mesh(geoBox, mat);
@@ -632,6 +854,14 @@
     level.builtStart = stat('start');
     levelGroup = new T.Group();
     scene.add(levelGroup);
+    const def = level.def;
+    bossMesh.geometry = BOSS_GEO[def.id];
+    enemyMesh.geometry = MINION_GEO[def.minion];
+    zoneRingMat.color.set(def.zone[1]);
+    zoneBlobMat.color.set(def.zone[1]);
+    zoneMeshes.forEach((z) => z.disc.material.color.set(def.zone[0]));
+    $('bossName').textContent = pick(def.name);
+    $('rival').textContent = t('rival') + ' · ' + pick(def.name);
     const len = level.len;
 
     // road slab
@@ -739,6 +969,27 @@
       b.mesh = grp; b.pulse = 0;
     });
 
+    // giant snowballs waiting for a push
+    level.balls.forEach((b) => {
+      const grp = new T.Group();
+      const ball = new T.Mesh(ballGeo, matSnow);
+      grp.add(ball);
+      const lab = makeLabel(256, 96);
+      own(lab.tex);
+      const c = lab.ctx;
+      c.font = '700 60px ' + FONT; c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round';
+      c.lineWidth = 12; c.strokeStyle = 'rgba(10,16,50,0.9)'; c.strokeText(t('pushMe'), 128, 50);
+      c.fillStyle = '#ffd23f'; c.fillText(t('pushMe'), 128, 50);
+      lab.tex.needsUpdate = true;
+      const pl = new T.Mesh(geoPlane, own(new T.MeshBasicMaterial({ map: lab.tex, transparent: true, depthWrite: false })));
+      pl.scale.set(2.6, 0.98, 1);
+      pl.position.set(0, 3.1, 0);
+      grp.add(pl);
+      grp.position.set(b.x, 0, -b.d);
+      levelGroup.add(grp);
+      b.mesh = grp; b.ball = ball; b.tag = pl;
+    });
+
     // lava pools
     level.pools.forEach((p) => {
       const a = new T.Mesh(geoCircle, matLava);
@@ -779,6 +1030,61 @@
     fox[i] = Math.cos(a) * r * 0.85; fod[i] = Math.sin(a) * r * 1.15;
   }
   const drawn = () => Math.min(squad.n, MAX_DRAWN);
+  const celebrating = () => state === 'won' || (state === 'result' && squad.n > 0);
+  const TEASE_D = 7.2, TEASE_S = 0.6;
+
+  // boss hazards
+  const zones = [];
+  const stripe = { on: false, kind: 'beam', x: 0, hw: 1.4, t: 0, warn: 1, live: 1 };
+  let hazAcc = 0, tauntT = 0, quipT = -9, saidStart = false, finQuipT = -1;
+
+  // things sent flying: beaten enemies (kind 0) and lost penguins (kind 1)
+  const fl = [];
+  for (let i = 0; i < MAX_FLY; i++) fl.push({ life: 0, kind: 0, x: 0, y: 0, d: 0, vx: 0, vy: 0, vd: 0, a: 0, va: 0, sc: 1, brute: false, hat: 0 });
+  let flNext = 0;
+  function fling(kind, x, d, sc, brute, hat, boost) {
+    if (silent) return;
+    if (kind === 1) {
+      let n = 0;
+      for (let i = 0; i < MAX_FLY; i++) if (fl[i].life > 0 && fl[i].kind === 1) n++;
+      if (n >= MAX_FLYU) return;
+    }
+    const f = fl[flNext];
+    flNext = (flNext + 1) % MAX_FLY;
+    const b = boost || 1;
+    f.kind = kind; f.x = x; f.y = 0.3; f.d = d; f.sc = sc; f.brute = brute; f.hat = hat; f.life = 2;
+    f.vx = (Math.random() * 2 - 1) * (kind ? 4.5 : 3.5);
+    f.vy = (kind ? 8 + Math.random() * 4 : 7 + Math.random() * 6) * b;
+    f.vd = kind ? -(2 + Math.random() * 6) : (5 + Math.random() * 9) * b;
+    f.a = 0; f.va = (Math.random() < 0.5 ? -1 : 1) * (7 + Math.random() * 9);
+  }
+  function updateFlying(dt) {
+    for (let i = 0; i < MAX_FLY; i++) {
+      const f = fl[i];
+      if (f.life <= 0) continue;
+      f.life -= dt;
+      f.vy -= 24 * dt;
+      f.x += f.vx * dt; f.y += f.vy * dt; f.d += f.vd * dt; f.a += f.va * dt;
+      if (f.y < -4) f.life = 0;
+    }
+  }
+
+  // speech bubbles
+  const bub = { boss: { el: $('bbBoss'), t: 0 }, squad: { el: $('bbSquad'), t: 0 } };
+  function say(who, text, dur) {
+    if (silent || !text) return;
+    const b = bub[who];
+    b.el.textContent = text;
+    b.el.hidden = false;
+    b.t = dur || 2.4;
+    b.el.classList.remove('in'); void b.el.offsetWidth; b.el.classList.add('in');
+  }
+  function hush() { bub.boss.t = bub.squad.t = 0; bub.boss.el.hidden = bub.squad.el.hidden = true; }
+  function quip(kind, chance) {
+    if (silent || time - quipT < 3.2 || Math.random() > chance) return;
+    quipT = time;
+    say('squad', pick(QUIPS[kind]), 2.2);
+  }
   const squadRx = () => 0.27 * Math.sqrt(drawn()) * 0.85 + 0.3;
   const squadRd = () => 0.27 * Math.sqrt(drawn()) * 1.15 + 0.3;
 
@@ -832,7 +1138,7 @@
       }
     } else {
       const b = level.boss;
-      if (b.alive && b.d - d < PRANGE + 1 && Math.abs(b.x - x) < 3.2) {
+      if (finale && b.alive && b.d - d < PRANGE + 1 && Math.abs(b.x - x) < 3.2) {
         vx = clamp((b.x + (Math.random() - 0.5) * 1.6 - x) / Math.max(0.05, (b.d - b.r - d) / PSPEED), -10, 10);
       }
     }
@@ -902,19 +1208,25 @@
     squad.n -= k;
     const after = drawn();
     for (let i = after; i < before && i < after + 6; i++) burst(ux[i], 0.5, squad.d + urd[i], 0xffffff, 4, 2.5, 1);
-    sfx.lose1(); buzz(18);
+    const fly = Math.min(k, 4);
+    for (let i = 0; i < fly; i++) {
+      const j = after + i < MAX_DRAWN ? after + i : Math.floor(Math.random() * MAX_DRAWN);
+      fling(1, before > after ? ux[j] : squad.x + (Math.random() - 0.5) * 2, squad.d + (before > after ? urd[j] : 0), 0.95, false, hatOf[j]);
+    }
+    sfx.lose1(); sfx.yelp(); buzz(18);
+    quip('hurt', 0.45);
     shake = Math.min(0.5, shake + 0.12);
     flashCount('hurt');
     if (squad.n <= 0) endRun(false);
   }
   function addCoins(c) { runCoins += c * stat('gold'); }
 
-  function killEnemy(e, byShot) {
+  function killEnemy(e, byShot, boost) {
     e.alive = false;
-    burst(e.x, 0.4 * e.sc, e.d, byShot ? 0xffffff : 0xff8c3a, e.brute ? 12 : 5, e.brute ? 5 : 3.2, e.brute ? 1.6 : 1);
+    burst(e.x, 0.4 * e.sc, e.d, byShot ? 0xffffff : 0xff8c3a, e.brute ? 10 : 3, e.brute ? 5 : 3.2, e.brute ? 1.6 : 1);
     if (byShot) {
-      burst(e.x, 0.4 * e.sc, e.d, 0xffb347, e.brute ? 6 : 2, 3, 1);
-      runKills++; addCoins(e.coin); sfx.pop();
+      fling(0, e.x, e.d, e.sc, e.brute, 0, boost);
+      runKills++; addCoins(e.coin); sfx.pop(); sfx.boing();
       if (e.brute) floatText('+' + Math.round(e.coin * stat('gold')), e.x, 1.6, e.d, 'gold');
     }
   }
@@ -931,6 +1243,7 @@
     }
     const k = g.type === 'mul' ? squad.n * (g.v - 1) : g.v;
     addUnits(k);
+    if (!g.row) quip('grow', g.type === 'mul' ? 0.7 : 0.3);
     sfx.gate(); buzz(10);
     floatText(gateText(g), cx, 2.4, g.d, (g.type === 'mul' ? 'gold' : 'good') + (g.row ? '' : ' big'));
     burst(squad.x, 0.6, squad.d, GATE_HEX[g.type], g.row ? 4 : 10, 3.5, 1);
@@ -968,7 +1281,10 @@
       b.hp = b.maxhp = Math.sqrt(level.est * squad.n) * RATE0 * level.hpE * level.bossT;
     }
     level.boss.active = true;
+    level.boss.flee = false; level.boss.d = Math.min(level.boss.d, level.boss.homeD);
     level.enemies.forEach((e) => { if (e.wake < 0) e.awake = true; });
+    say('boss', pick(level.def.taunt), 2.6);
+    finQuipT = runT + 1.5;
     showBanner('bFinale');
     sfx.roar();
     $('progress').hidden = true;
@@ -986,19 +1302,25 @@
       level.enemies.forEach((e) => { if (e.alive && e.awake) killEnemy(e, true); });
       for (let k = 0; k < 6; k++) burst(b.x + (Math.random() - 0.5) * 3, 1 + Math.random() * 3, b.d, k % 2 ? 0xffc531 : 0xff5126, 14, 8, 2.2);
       shake = 0.8; buzz(120);
-      sfx.crack(); sfx.win();
+      sfx.crack(); sfx.halay();
+      zones.length = 0; stripe.on = false;
+      hush();
+      say('squad', pick(QUIPS.win), 2.6);
     } else {
       sfx.fail(); buzz(200);
+      hush();
+      say('boss', pick(QUIPS.gloat), 2.6);
     }
   }
 
   function showResult() {
     const earned = Math.round(runCoins);
     save.coins += earned;
+    hush();
     $('count').hidden = true;
     $('bossbar').hidden = true;
     if (state === 'won') {
-      $('winSub').textContent = t('winSub', { n: level.L });
+      $('winSub').textContent = t('winSub', { b: pick(level.def.name) });
       $('winUnits').textContent = fmt(squad.n);
       $('winKills').textContent = fmt(runKills);
       $('winCoins').textContent = '+' + fmt(earned);
@@ -1006,7 +1328,7 @@
       $('win').hidden = false;
     } else {
       const p = Math.round(clamp(squad.d / level.lineD, 0, 1) * 100);
-      $('loseSub').textContent = t('loseSub', { p });
+      $('loseSub').textContent = t('loseSub', { p, f: pick(QUIPS.loseFun) });
       $('loseKills').textContent = fmt(runKills);
       $('loseCoins').textContent = '+' + fmt(earned);
       $('lose').hidden = false;
@@ -1019,11 +1341,160 @@
   /* ------------------------------------------------------------------ */
   /* Simulation step                                                     */
   /* ------------------------------------------------------------------ */
+  function hazardDrain(dt, rate) {
+    hazAcc += dt * rate;
+    if (hazAcc >= 1) { const k = Math.floor(hazAcc); hazAcc -= k; loseUnits(k); }
+  }
+
+  function bossAttack() {
+    const lv = level, b = lv.boss, def = lv.def;
+    say('boss', pick(def.shout), 1.8);
+    if (def.attack === 'puddle' || def.attack === 'meteor') {
+      const met = def.attack === 'meteor';
+      const n = met ? 3 : lv.L > 5 ? 2 : 1;
+      for (let i = 0; i < n && zones.length < ZONE_N; i++) {
+        zones.push({
+          x: clamp(squad.x + (i ? (Math.random() * 2 - 1) * 3.6 : 0), -3.6, 3.6), d: squad.d + (i ? Math.random() * 2 - 0.5 : 0),
+          r: met ? 1.3 : 1.7, t: -i * 0.25, warn: 1.15, live: met ? 1.1 : 2.6, hit: false,
+        });
+      }
+      b.atkT = met ? 3.3 : 3.9;
+      sfx.whoosh();
+    } else if (def.attack === 'beam' || def.attack === 'dash') {
+      const dash = def.attack === 'dash';
+      stripe.on = true; stripe.kind = def.attack; stripe.x = clamp(squad.x, -2.6, 2.6); stripe.t = 0;
+      stripe.hw = dash ? 1.55 : 1.45; stripe.warn = dash ? 1.15 : 1.25; stripe.live = dash ? 0 : 1.7;
+      stripeMat.color.set(def.zone[1]);
+      b.atkT = dash ? 5.2 : 4.8;
+      if (!dash) sfx.whoosh();
+    } else { // a spicy wave of small fry
+      const k = clamp(Math.round(4 + lv.est * 0.1), 5, 20);
+      for (let i = 0; i < k; i++) {
+        lv.enemies.push({
+          x: -4 + (8 * (i + 0.5)) / k, d: b.d - 1.5 - Math.random() * 1.5, hp: lv.hpE, r: 0.36, sc: 1, kill: 1, coin: lv.coinV, brute: false,
+          wake: 1, speed: 5.2 + Math.random(), awake: true, alive: true, ph: Math.random() * 6.28, off: Math.random() * 2 - 1, inc: 0, incT: -9,
+        });
+      }
+      burst(b.x, 2, b.d - 1.5, 0xe3201f, 16, 6, 1.6);
+      floatText(t('spicy'), b.x, def.top, b.d, 'bad big');
+      b.atkT = 4.4;
+    }
+  }
+
+  function updateBoss(dt, rd) {
+    const lv = level, b = lv.boss, def = lv.def;
+    if (!b.dash) { b.atkT -= dt; if (b.atkT <= 0 && !stripe.on) bossAttack(); }
+    if (!b.half && b.hp < b.maxhp * 0.5) { b.half = true; say('boss', pick(def.ouch), 1.8); }
+
+    if (b.dash === 1) { // the charge down the marked lane
+      b.d -= 48 * dt;
+      if (b.d <= squad.d + rd + b.r) {
+        b.d = squad.d + rd + b.r; b.dash = 2;
+        shake = Math.min(0.7, shake + 0.35); sfx.crack();
+        if (Math.abs(squad.x - b.x) < stripe.hw + squadRx() * 0.4) {
+          floatText(t('ironed'), squad.x, 3, squad.d, 'bad big');
+          loseUnits(Math.max(3, Math.ceil(squad.n * 0.3)));
+          if (state !== 'run') return;
+        }
+      }
+    } else if (b.dash === 2) {
+      b.d += 15 * dt;
+      if (b.d >= b.retD) { b.d = b.retD; b.dash = 0; }
+    } else {
+      const gap = b.d - squad.d;
+      if (gap > rd + b.r + 0.2) {
+        b.d -= b.speed * dt;
+        const zig = def.attack === 'summon';
+        const want = zig ? Math.sin(time * 1.2) * 3 : squad.x;
+        const dx = want - b.x, mv = (zig ? 2.2 : 0.8) * dt;
+        b.x += dx > mv ? mv : dx < -mv ? -mv : dx;
+      } else {
+        b.drain += dt * (6 + squad.n * 0.15);
+        if (b.drain >= 1) {
+          const k = Math.floor(b.drain); b.drain -= k;
+          sfx.boss();
+          loseUnits(k);
+          if (state !== 'run') return;
+        }
+      }
+    }
+
+    for (let i = zones.length - 1; i >= 0; i--) {
+      const z = zones[i];
+      z.t += dt;
+      if (z.t >= z.warn && !z.hit) {
+        z.hit = true;
+        burst(z.x, 0.3, z.d, def.zone[1], 12, 5, 1.4);
+        shake = Math.min(0.5, shake + 0.15); sfx.thud();
+      }
+      if (z.hit) {
+        const dx = squad.x - z.x, dd = squad.d - z.d;
+        if (dx * dx + dd * dd < (z.r + 0.25) * (z.r + 0.25)) { hazardDrain(dt, 8 + squad.n * 0.1); if (state !== 'run') return; }
+      }
+      if (z.t >= z.warn + z.live) zones.splice(i, 1);
+    }
+
+    if (stripe.on) {
+      stripe.t += dt;
+      if (stripe.kind === 'beam') {
+        const dx = stripe.x - squad.x;
+        if (Math.abs(dx) > 0.1) squad.tx += Math.sign(dx) * 2 * dt; // the draught drags the squad in
+        if (stripe.t >= stripe.warn) {
+          if (Math.abs(dx) < stripe.hw + 0.3) { hazardDrain(dt, 7 + squad.n * 0.12); if (state !== 'run') return; }
+          if (Math.random() < 0.7) burst(stripe.x + (Math.random() * 2 - 1) * stripe.hw, 0.6, squad.d + Math.random() * 16, 0xffb347, 1, 3, 0.9);
+        }
+        if (stripe.t >= stripe.warn + stripe.live) stripe.on = false;
+      } else if (b.dash === 2) stripe.on = false;
+      else if (stripe.t >= stripe.warn && !b.dash) {
+        b.dash = 1; b.x = stripe.x; b.retD = Math.max(squad.d + rd + 5, b.d - 3);
+        sfx.whoosh();
+      }
+    }
+  }
+
   const hits = [];
   function updateRun(dt) {
     const lv = level, boss = lv.boss;
     runT += dt;
     if (runT > 6 && !silent && !$('hint').hidden) $('hint').hidden = true;
+    if (!saidStart && runT > 1.3) { saidStart = true; quip('start', 1); }
+    if (finQuipT > 0 && runT > finQuipT) { finQuipT = -1; quip('finale', 1); }
+
+    // giant snowballs
+    for (let i = 0; i < lv.balls.length; i++) {
+      const b = lv.balls[i];
+      if (b.st === 0) {
+        if (squad.d + squadRd() >= b.d - b.r && squad.d < b.d + 1 && Math.abs(squad.x - b.x) < b.r + squadRx() * 0.6 + 0.3) {
+          b.st = 1; b.d0 = b.d;
+          sfx.rumble(); buzz(30);
+          quipT = -9; quip('roll', 1);
+        }
+      } else if (b.st === 1) {
+        b.d += 26 * dt; b.r += 0.3 * dt; b.spin += (26 * dt) / b.r;
+        const rr2 = (b.r + 0.6) * (b.r + 0.6);
+        for (let k = 0; k < lv.enemies.length; k++) {
+          const e = lv.enemies[k];
+          if (!e.alive) continue;
+          const dx = e.x - b.x, dd = e.d - b.d;
+          if (dx * dx + dd * dd < rr2) { killEnemy(e, true, 1.5); b.kills++; }
+        }
+        for (let k = 0; k < lv.barriers.length; k++) {
+          const w = lv.barriers[k];
+          if (w.alive && b.x > w.x0 - b.r && b.x < w.x1 + b.r && Math.abs(w.d - b.d) < b.r + w.hd) breakBarrier(w, true);
+        }
+        if (b.d - b.d0 > 50 || b.d > lv.lineD + 26) {
+          b.st = 2;
+          burst(b.x, b.r, b.d, 0xffffff, 26, 7, 1.8);
+          sfx.crack();
+          if (b.kills >= 5) {
+            const bonus = b.kills * lv.coinV;
+            addCoins(bonus);
+            floatText(t('strike') + ' +' + Math.round(bonus * stat('gold')), b.x, 3, b.d, 'gold big');
+            sfx.strike();
+          }
+        }
+      }
+    }
     // steering
     boundsAt(squad.d, squad.x, bnd);
     squad.tx = clamp(squad.tx, bnd[0] + 0.5, bnd[1] - 0.5);
@@ -1124,20 +1595,8 @@
           });
         }
       }
-      const gap = boss.d - squad.d;
-      if (gap > rd + 1.5) {
-        boss.d -= boss.speed * dt;
-        const dx = squad.x - boss.x, mv = 0.8 * dt;
-        boss.x += dx > mv ? mv : dx < -mv ? -mv : dx;
-      } else {
-        boss.drain += dt * (6 + squad.n * 0.15);
-        if (boss.drain >= 1) {
-          const k = Math.floor(boss.drain); boss.drain -= k;
-          sfx.boss();
-          loseUnits(k);
-          if (state !== 'run') return;
-        }
-      }
+      updateBoss(dt, rd);
+      if (state !== 'run') return;
     }
 
     // projectiles
@@ -1171,7 +1630,7 @@
         if (g.d > d1) break;
         if (g.type === 'charge' && !g.used && g.d >= d0 && x > g.x0 && x < g.x1 && g.d < blockD) { blockD = g.d; blockKind = 2; blockObj = g; }
       }
-      if (boss.alive) {
+      if (boss.alive && finale) {
         const face = boss.d - boss.r * 0.8;
         if (Math.abs(x - boss.x) < boss.r && face >= d0 - 0.6 && face <= d1 && face < blockD) { blockD = face; blockKind = 3; blockObj = boss; }
       }
@@ -1226,9 +1685,21 @@
   const dummy = new T.Object3D();
   function moveUnits(dt) { // formation follow; part of the simulation because shots leave from unit positions
     const n = drawn();
+    const k = Math.min(1, dt * 13);
+    if (celebrating()) { // line up for the victory dance
+      const sway = Math.sin(time * 4.2) * 0.3;
+      for (let i = 0; i < n; i++) {
+        const c = i % 10, r = Math.floor(i / 10);
+        const inRow = Math.min(10, n - r * 10);
+        const tx = (c - (inRow - 1) / 2) * 0.68 + (r % 2 ? -sway : sway);
+        ux[i] += (tx - ux[i]) * k * 0.5;
+        urd[i] += (2.4 - r * 0.9 - urd[i]) * k * 0.5;
+        usc[i] += (1 - usc[i]) * Math.min(1, dt * 10);
+      }
+      return;
+    }
     boundsAt(squad.d, squad.x, bnd);
     const lo = bnd[0] + 0.24, hi = bnd[1] - 0.24;
-    const k = Math.min(1, dt * 13);
     for (let i = 0; i < n; i++) {
       const tx = clamp(squad.x + fox[i], lo, hi);
       ux[i] += (tx - ux[i]) * k * (1 - i * 0.004);
@@ -1236,24 +1707,41 @@
       usc[i] += (1 - usc[i]) * Math.min(1, dt * 10);
     }
   }
+  const hatCount = [0, 0, 0, 0];
   function updateUnits() {
     const n = drawn();
-    const facing = state === 'home' || state === 'won' || (state === 'result' && squad.n > 0);
+    const cel = celebrating();
+    const facing = state === 'home' || cel;
     const big = 1 + Math.min(0.3, Math.max(0, Math.log10(squad.n / MAX_DRAWN)) * 0.3);
+    hatCount.fill(0);
     for (let i = 0; i < n; i++) {
       const ph = time * 11 + i * 1.7;
       let y = 0, tilt = 0;
-      if (state === 'run' && !finale) { y = Math.abs(Math.sin(ph)) * 0.07; tilt = Math.sin(ph) * 0.13; }
-      else if (state === 'won' || (state === 'result' && squad.n > 0)) { y = Math.abs(Math.sin(time * 7 + i)) * 0.45; }
+      if (cel) {
+        const r = Math.floor(i / 10);
+        y = Math.abs(Math.sin(time * 8.4 + r * 1.57)) * 0.32; tilt = Math.sin(time * 4.2) * 0.22 * (r % 2 ? -1 : 1);
+      } else if (state === 'run' && !finale) { y = Math.abs(Math.sin(ph)) * 0.07; tilt = Math.sin(ph) * 0.13; }
       else { y = Math.abs(Math.sin(time * 3 + i)) * 0.03; tilt = Math.sin(time * 3 + i) * 0.05; }
       dummy.position.set(ux[i], y, -(squad.d + urd[i]));
       dummy.rotation.set(0, facing ? Math.PI : 0, tilt);
       dummy.scale.setScalar(usc[i] * 0.95 * big);
       dummy.updateMatrix();
-      unitMesh.setMatrixAt(i, dummy.matrix);
+      const h = hatOf[i];
+      unitMeshes[h].setMatrixAt(hatCount[h]++, dummy.matrix);
     }
-    unitMesh.count = n;
-    unitMesh.instanceMatrix.needsUpdate = true;
+    for (let i = 0; i < MAX_FLY; i++) {
+      const f = fl[i];
+      if (f.life <= 0 || f.kind !== 1) continue;
+      dummy.position.set(f.x, f.y, -f.d);
+      dummy.rotation.set(f.a, f.a * 0.6, 0);
+      dummy.scale.setScalar(f.sc);
+      dummy.updateMatrix();
+      unitMeshes[f.hat].setMatrixAt(hatCount[f.hat]++, dummy.matrix);
+    }
+    for (let h = 0; h < HATS; h++) {
+      unitMeshes[h].count = hatCount[h];
+      unitMeshes[h].instanceMatrix.needsUpdate = true;
+    }
   }
 
   function updateEnemiesVisual() {
@@ -1270,6 +1758,18 @@
       else { col[n * 3] = 1; col[n * 3 + 1] = 1; col[n * 3 + 2] = 1; }
       n++;
     }
+    for (let i = 0; i < MAX_FLY && n < MAX_EN_DRAWN; i++) {
+      const f = fl[i];
+      if (f.life <= 0 || f.kind !== 0) continue;
+      dummy.position.set(f.x, f.y, -f.d);
+      dummy.rotation.set(f.a, f.a * 0.5, 0);
+      dummy.scale.setScalar(f.sc);
+      dummy.updateMatrix();
+      dummy.matrix.toArray(arr, n * 16);
+      if (f.brute) { col[n * 3] = 0.62; col[n * 3 + 1] = 0.42; col[n * 3 + 2] = 1.0; }
+      else { col[n * 3] = 1; col[n * 3 + 1] = 1; col[n * 3 + 2] = 1; }
+      n++;
+    }
     enemyMesh.count = n;
     enemyMesh.instanceMatrix.needsUpdate = true;
     enemyMesh.instanceColor.needsUpdate = true;
@@ -1277,12 +1777,14 @@
     const b = level.boss;
     if (b.alive) {
       bossMesh.visible = true;
-      const stomp = b.active ? Math.abs(Math.sin(time * 3.2)) : 0;
-      bossMesh.position.set(b.x, stomp * 0.35, -b.d);
-      const s = 4.6;
+      const lively = b.active || state === 'home';
+      const stomp = b.dash || b.flee ? 0 : lively ? Math.abs(Math.sin(time * 3.2)) : 0;
+      bossMesh.position.set(b.x, stomp * 0.35 * b.vs, -b.d);
+      const s = level.def.scale * b.vs;
       bossMesh.scale.set(s * (1 + stomp * 0.04), s * (1 - stomp * 0.05 + b.flash * 0.05), s);
-      bossMesh.rotation.y = Math.sin(time * 1.6) * 0.12;
-      bossMat.emissiveIntensity = b.flash * 0.55;
+      bossMesh.rotation.y = b.flee ? Math.PI : Math.sin(time * 1.6) * 0.12;
+      bossMesh.rotation.x = b.dash === 1 ? 0.18 : 0;
+      bossMat.emissiveIntensity = b.flash * 0.2;
     } else bossMesh.visible = false;
   }
 
@@ -1341,6 +1843,55 @@
       p.core.scale.set(s, s, 1);
     }
     if (lv.boss.flash > 0) lv.boss.flash = Math.max(0, lv.boss.flash - dt * 9);
+    for (let i = 0; i < lv.balls.length; i++) {
+      const b = lv.balls[i];
+      if (b.st === 2) { b.mesh.visible = false; continue; }
+      b.mesh.position.set(b.x, 0, -b.d);
+      b.ball.scale.setScalar(b.r);
+      b.ball.position.y = b.r;
+      b.ball.rotation.x = -b.spin;
+      b.tag.visible = b.st === 0;
+      b.tag.position.y = 3.1 + Math.sin(time * 4) * 0.15;
+    }
+    const bs = lv.boss;
+    for (let i = 0; i < ZONE_N; i++) {
+      const m = zoneMeshes[i], z = zones[i];
+      if (!z || z.t < 0) { m.grp.visible = false; m.blob.visible = false; continue; }
+      const w = clamp(z.t / z.warn, 0, 1);
+      m.grp.visible = true;
+      m.grp.position.set(z.x, 0, -z.d);
+      m.ring.scale.set(z.r, z.r, 1);
+      const ds = z.hit ? z.r * (0.95 + Math.sin(time * 9 + i) * 0.03) : z.r * (0.25 + 0.75 * w);
+      m.disc.scale.set(ds, ds, 1);
+      m.disc.material.opacity = z.hit ? 0.92 : 0.35 + 0.2 * Math.sin(time * 16);
+      m.blob.visible = !z.hit;
+      if (!z.hit) m.blob.position.set(lerp(bs.x, z.x, w), lv.def.top * (1 - w) + Math.sin(w * Math.PI) * 7 + 0.4, -lerp(bs.d, z.d, w));
+    }
+    if (stripe.on) {
+      stripeMesh.visible = true;
+      stripeMesh.scale.set(stripe.hw * 2, 50, 1);
+      stripeMesh.position.set(stripe.x, 0.035, -(squad.d + 22));
+      stripeMat.opacity = stripe.t < stripe.warn ? 0.22 + 0.14 * Math.sin(time * 18) : 0.6;
+    } else stripeMesh.visible = false;
+  }
+
+  let homeBubbleMin = 0;
+  function updateBubbles(dt) {
+    for (const who in bub) {
+      const b = bub[who];
+      if (b.t <= 0) continue;
+      b.t -= dt;
+      if (b.t <= 0) { b.el.hidden = true; continue; }
+      if (who === 'boss') v3.set(level.boss.x, level.def.top * level.boss.vs + 0.5, -level.boss.d);
+      else v3.set(squad.x, 3.3, -(squad.d + squadRd() * 0.5));
+      v3.project(camera);
+      if (v3.z > 1) { b.el.hidden = true; continue; }
+      b.el.hidden = false;
+      b.el.style.left = clamp((v3.x * 0.5 + 0.5) * viewW, 96, viewW - 96).toFixed(1) + 'px';
+      let top = Math.max(who === 'boss' ? 118 : 150, (-v3.y * 0.5 + 0.5) * viewH);
+      if (state === 'home') top = Math.max(top, homeBubbleMin);
+      b.el.style.top = top.toFixed(1) + 'px';
+    }
   }
 
   const POSE = { home: { h: 6.4, b: 10.5, a: 1.5 }, run: { h: 12.5, b: 9.5, a: 12 }, fin: { h: 15, b: 11, a: 13 } };
@@ -1382,10 +1933,18 @@
   function step(dt) {
     time += dt;
     moveUnits(dt);
+    updateFlying(dt);
+    const bs = level.boss;
+    if (state === 'home') {
+      tauntT -= dt;
+      if (tauntT <= 0) { tauntT = 4.6; if (viewH >= 620) say('boss', pick(level.def.taunt), 3.2); }
+    }
+    if (bs.flee) { bs.d += 85 * dt; if (bs.d >= bs.homeD) { bs.d = bs.homeD; bs.flee = false; } }
+    bs.vs += ((state === 'home' ? TEASE_S : 1) - bs.vs) * Math.min(1, dt * 4);
     if (state === 'run') updateRun(dt);
     else if (state === 'won' || state === 'lost') {
       endT += dt;
-      if (endT > (state === 'won' ? 1.9 : 1.1)) showResult();
+      if (endT > (state === 'won' ? 3.3 : 1.3)) showResult();
     }
     // spent projectiles keep flying briefly after the run ends
     if (state !== 'run') {
@@ -1400,6 +1959,7 @@
     updateProps(dt);
     updateCamera(dt);
     refreshHud(false);
+    updateBubbles(dt);
     renderer.render(scene, camera);
   }
 
@@ -1427,6 +1987,8 @@
     fireAcc = 0; poolAcc = 0; spawnAcc = 0; gateIdx = 0; bannerIdx = 0; shake = 0; combo = 0;
     squad.x = 0; squad.tx = 0; squad.d = 0; squad.speed = 0; squad.n = stat('start');
     pAlive.fill(0); ql.fill(0);
+    zones.length = 0; stripe.on = false; hazAcc = 0; saidStart = false; finQuipT = -1; quipT = -9;
+    for (let i = 0; i < MAX_FLY; i++) fl[i].life = 0;
     const n = drawn();
     for (let i = 0; i < n; i++) { ux[i] = fox[i]; urd[i] = fod[i]; usc[i] = 1; }
   }
@@ -1435,6 +1997,10 @@
     buildLevel(save.level);
     resetRun();
     state = 'home';
+    hush();
+    level.boss.d = TEASE_D; level.boss.vs = TEASE_S; tauntT = 0.9;
+    // keep the rival's speech bubble clear of the title block
+    homeBubbleMin = $('rival').getBoundingClientRect().bottom - stage.getBoundingClientRect().top + 52;
     $('win').hidden = true; $('lose').hidden = true;
     $('home').hidden = false;
     $('progress').hidden = true; $('bossbar').hidden = true; $('count').hidden = true; $('hint').hidden = true;
@@ -1450,6 +2016,9 @@
     if (level.builtStart !== stat('start')) { buildLevel(save.level); }
     resetRun();
     state = 'run';
+    level.boss.d = Math.min(level.boss.d, TEASE_D); level.boss.flee = true;
+    hush();
+    say('boss', pick(QUIPS.flee), 1.6);
     $('home').hidden = true;
     $('progress').hidden = false;
     $('progressFill').style.width = '0%';
@@ -1555,7 +2124,7 @@
   // Automation hooks used by the test bot (no effect on normal play).
   window.__kt = {
     get state() { return state; }, get level() { return level; }, get finale() { return finale; },
-    squad, save, stat, cost,
+    squad, save, stat, cost, zones, stripe,
     start: startRun, home: goHome,
     setSilent(v) { silent = !!v; },
     pause(v) { paused = !!v; },

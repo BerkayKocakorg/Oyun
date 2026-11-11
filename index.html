@@ -153,6 +153,27 @@ body {
 #hint .slider i { position: absolute; top: 6px; left: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--ice); border: 3px solid var(--night); animation: slide 1.5s ease-in-out infinite alternate; }
 @keyframes slide { to { left: 118px; } }
 
+/* ---------- speech bubbles ---------- */
+.bubble {
+  position: absolute; left: 0; top: 0; pointer-events: none; z-index: 3;
+  max-width: 180px; padding: 5px 12px 6px; border-radius: 16px;
+  background: var(--ice); color: var(--night); border: 3px solid var(--night);
+  font-family: var(--font-display); font-weight: 600; font-size: 15px; line-height: 1.15; text-align: center;
+  transform: translate(-50%, -100%) translateY(-14px); transform-origin: 50% 100%;
+}
+.bubble::after {
+  content: ""; position: absolute; left: 50%; bottom: -10px; width: 13px; height: 13px; margin-left: -8px;
+  background: var(--ice); border-right: 3px solid var(--night); border-bottom: 3px solid var(--night);
+  transform: rotate(45deg);
+}
+.bubble.in { animation: bubbleIn 0.22s cubic-bezier(.2,1.6,.5,1); }
+@keyframes bubbleIn { from { transform: translate(-50%, -100%) translateY(-14px) scale(0.3); } }
+.rival {
+  align-self: center; margin-top: 10px; padding: 3px 14px; border-radius: 999px;
+  background: var(--ember); color: var(--ice); border: 2px solid var(--night);
+  font-family: var(--font-display); font-weight: 700; font-size: 14px; letter-spacing: 0.06em;
+}
+
 /* ---------- screens ---------- */
 .screen { display: flex; flex-direction: column; padding-block: 12px 18px; }
 #home { background: linear-gradient(180deg, rgba(11,20,55,0.35) 0%, rgba(11,20,55,0) 30%, rgba(11,20,55,0) 48%, rgba(11,20,55,0.9) 78%); }
@@ -248,11 +269,14 @@ body {
       </div>
       <div class="track" id="progress" hidden><i id="progressFill"></i></div>
       <div id="bossbar" hidden>
-        <div class="name" data-i18n="bossName">VOLKAN DEVİ</div>
+        <div class="name" id="bossName">KIZGIN ÇAYDANLIK</div>
         <div class="track"><i id="bossFill"></i></div>
       </div>
       <div id="banner"></div>
     </div>
+
+    <div class="bubble" id="bbBoss" hidden></div>
+    <div class="bubble" id="bbSquad" hidden></div>
 
     <div id="hint" hidden>
       <div class="slider"><i></i></div>
@@ -264,8 +288,8 @@ body {
       <h1 class="logo" style="margin-bottom:0">
         <span class="l1" data-i18n="title1">KARTOPU</span>
         <span class="l2" data-i18n="title2">TABURU</span>
-        <small data-i18n="tagline">Şeridini seç · Taburu büyüt · Hattı savun</small>
       </h1>
+      <div class="rival" id="rival"></div>
       <div class="spacer"></div>
       <div class="upgrades" id="upgrades">
         <button class="upg" type="button" id="upg-start" data-k="start">
@@ -294,7 +318,7 @@ body {
         <p id="winSub"></p>
         <div class="rows">
           <div><span data-i18n="rowSaved">Ayakta kalan penguen</span><b id="winUnits">0</b></div>
-          <div><span data-i18n="rowKills">Söndürülen kor</span><b id="winKills">0</b></div>
+          <div><span data-i18n="rowKills">Alt edilen düşman</span><b id="winKills">0</b></div>
           <div class="total"><span data-i18n="rowCoins">Kazanılan altın</span><b id="winCoins">0</b></div>
         </div>
         <button class="btn gold" id="winBtn" type="button" data-i18n="next">DEVAM</button>
@@ -306,7 +330,7 @@ body {
         <h2 data-i18n="loseTitle">TABUR DAĞILDI</h2>
         <p id="loseSub"></p>
         <div class="rows">
-          <div><span data-i18n="rowKills">Söndürülen kor</span><b id="loseKills">0</b></div>
+          <div><span data-i18n="rowKills">Alt edilen düşman</span><b id="loseKills">0</b></div>
           <div class="total"><span data-i18n="rowCoins">Kazanılan altın</span><b id="loseCoins">0</b></div>
         </div>
         <p data-i18n="loseTip">Altınlarınla taburu güçlendir, sonra tekrar dene.</p>

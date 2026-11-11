@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b1437">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<!--HEAD-->
+<title>Kartopu Taburu</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;800&display=swap">
+<style>
+/* Layout: one portrait stage; 3D canvas full-bleed, HUD and screens float above it inside a 16px gutter. */
+:root {
+  color-scheme: dark;
+  --night: #0b1437;
+  --night-2: #16235c;
+  --ice: #eefaff;
+  --frost: #9fe3f5;
+  --mint: #1fd8a8;
+  --gold: #ffc93c;
+  --ember: #ff5a36;
+  --violet: #a06bff;
+  --panel: rgba(11, 20, 55, 0.78);
+  --panel-line: rgba(159, 227, 245, 0.28);
+  --ink-on-gold: #4a2a00;
+  --ink-on-mint: #003b2c;
+  --shade: rgba(4, 8, 28, 0.55);
+  --font-display: "Fredoka", "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Nunito", "Segoe UI", system-ui, sans-serif;
+}
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--night);
+  color: var(--ice);
+  font-family: var(--font-body);
+  font-weight: 600;
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-user-select: none; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+#app { height: 100%; display: flex; justify-content: center; background: var(--night); }
+#stage {
+  position: relative; height: 100%; width: 100%;
+  max-width: calc(100vh * 0.62);
+  overflow: hidden; touch-action: none; background: var(--night-2);
+}
+@supports (height: 100dvh) { #stage { max-width: calc(100dvh * 0.62); } }
+#c { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+#floats, #hud, .screen { position: absolute; inset: 0; }
+#floats { pointer-events: none; overflow: hidden; }
+
+.gutter {
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* ---------- floating numbers ---------- */
+.float {
+  position: absolute; transform: translate(-50%, -50%);
+  font-family: var(--font-display); font-weight: 700; font-size: 26px;
+  color: var(--ice); white-space: nowrap;
+  text-shadow: 0 2px 0 var(--night), 0 0 10px var(--shade);
+  animation: floatUp 0.9s ease-out forwards;
+}
+.float.good { color: var(--mint); }
+.float.gold { color: var(--gold); }
+.float.bad { color: var(--ember); }
+.float.big { font-size: 38px; }
+@keyframes floatUp {
+  0% { opacity: 0; transform: translate(-50%, -30%) scale(0.5); }
+  18% { opacity: 1; transform: translate(-50%, -70%) scale(1.15); }
+  100% { opacity: 0; transform: translate(-50%, -230%) scale(1); }
+}
+
+/* ---------- HUD ---------- */
+#hud { pointer-events: none; display: flex; flex-direction: column; gap: 10px; padding-block: 12px; }
+.topbar { display: flex; align-items: center; gap: 10px; }
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--panel); border: 2px solid var(--panel-line);
+  border-radius: 999px; padding: 5px 12px;
+  font-family: var(--font-display); font-weight: 600; font-size: 16px;
+  font-variant-numeric: tabular-nums; line-height: 1.2;
+}
+.pill svg { width: 18px; height: 18px; flex: none; }
+.pill.coins { color: var(--gold); margin-left: auto; }
+.pill.coins.bump { animation: bump 0.25s ease-out; }
+@keyframes bump { 40% { transform: scale(1.14); } }
+.iconbtn {
+  pointer-events: auto; width: 38px; height: 38px; flex: none;
+  display: grid; place-items: center; cursor: pointer;
+  background: var(--panel); border: 2px solid var(--panel-line); border-radius: 50%;
+  color: var(--ice); padding: 0;
+}
+.iconbtn svg { width: 20px; height: 20px; }
+.iconbtn:focus-visible, .btn:focus-visible, .upg:focus-visible { outline: 3px solid var(--frost); outline-offset: 2px; }
+
+.track {
+  height: 12px; border-radius: 999px; background: var(--panel);
+  border: 2px solid var(--panel-line); overflow: hidden;
+}
+.track > i { display: block; height: 100%; width: 0%; border-radius: 999px; background: linear-gradient(90deg, var(--frost), var(--mint)); }
+#bossbar { display: flex; flex-direction: column; gap: 4px; }
+#bossbar .name { font-family: var(--font-display); font-weight: 700; font-size: 15px; letter-spacing: 0.08em; color: var(--gold); text-shadow: 0 2px 0 var(--night); text-align: center; }
+#bossbar .track { height: 16px; }
+#bossbar .track > i { background: linear-gradient(90deg, var(--ember), var(--gold)); width: 100%; }
+
+#banner {
+  align-self: center; margin-top: 6vh; text-align: center;
+  font-family: var(--font-display); font-weight: 700; font-size: clamp(24px, 7.4vw, 40px);
+  letter-spacing: 0.03em; line-height: 1.05; color: var(--ice); text-wrap: balance;
+  -webkit-text-stroke: 2px var(--night); paint-order: stroke fill;
+  text-shadow: 0 4px 0 var(--night), 0 0 22px var(--shade);
+  opacity: 0;
+}
+#banner.show { animation: bannerIn 1.9s ease-out forwards; }
+@keyframes bannerIn {
+  0% { opacity: 0; transform: scale(0.6); }
+  12% { opacity: 1; transform: scale(1.08); }
+  20% { transform: scale(1); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-14px); }
+}
+
+#count {
+  position: absolute; left: 0; top: 0; pointer-events: none;
+  font-family: var(--font-display); font-weight: 700; font-size: 22px;
+  color: var(--night); background: var(--ice);
+  border: 3px solid var(--night); border-radius: 999px;
+  padding: 0 12px; line-height: 1.45; font-variant-numeric: tabular-nums;
+  transform: translate(-50%, -50%); will-change: transform;
+}
+#count.pop { animation: countPop 0.18s ease-out; }
+@keyframes countPop { 50% { background: var(--mint); } }
+#count.hurt { animation: countHurt 0.22s ease-out; }
+@keyframes countHurt { 50% { background: var(--ember); color: var(--ice); } }
+
+#hint {
+  position: absolute; left: 0; right: 0; bottom: 9%; pointer-events: none;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  font-family: var(--font-display); font-weight: 600; font-size: 18px;
+  text-shadow: 0 2px 0 var(--night), 0 0 12px var(--shade);
+}
+#hint .slider { width: 150px; height: 44px; position: relative; }
+#hint .slider::before { content: ""; position: absolute; left: 0; right: 0; top: 20px; height: 4px; border-radius: 4px; background: var(--ice); opacity: 0.55; }
+#hint .slider i { position: absolute; top: 6px; left: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--ice); border: 3px solid var(--night); animation: slide 1.5s ease-in-out infinite alternate; }
+@keyframes slide { to { left: 118px; } }
+
+/* ---------- screens ---------- */
+.screen { display: flex; flex-direction: column; padding-block: 12px 18px; }
+#home { background: linear-gradient(180deg, rgba(11,20,55,0.35) 0%, rgba(11,20,55,0) 30%, rgba(11,20,55,0) 48%, rgba(11,20,55,0.9) 78%); }
+.logo { margin-top: 5vh; text-align: center; font-family: var(--font-display); font-weight: 700; line-height: 0.92; }
+.logo span { display: block; -webkit-text-stroke: 3px var(--night); paint-order: stroke fill; text-shadow: 0 5px 0 var(--night); }
+.logo .l1 { font-size: clamp(40px, 13.5vw, 68px); color: var(--ice); letter-spacing: 0.02em; }
+.logo .l2 { font-size: clamp(34px, 11.5vw, 58px); color: var(--gold); letter-spacing: 0.06em; }
+.logo small { display: inline-block; margin-top: 12px; white-space: nowrap; font-family: var(--font-body); font-weight: 800; font-size: clamp(9px, 2.8vw, 13px); letter-spacing: 0.08em; text-transform: uppercase; color: var(--frost); text-shadow: 0 1px 0 var(--night), 0 0 10px var(--night); }
+.spacer { flex: 1; min-height: 0; }
+.upgrades { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.upg {
+  display: grid; grid-template-columns: 34px 1fr; grid-template-rows: auto auto auto; column-gap: 8px; align-items: center;
+  text-align: left; cursor: pointer; min-width: 0;
+  background: var(--panel); color: var(--ice);
+  border: 2px solid var(--panel-line); border-radius: 16px; padding: 8px 10px;
+  font-family: var(--font-body); font-weight: 600;
+}
+.upg:active { transform: scale(0.97); }
+.upg svg { grid-row: 1 / span 2; width: 34px; height: 34px; }
+.upg b { font-family: var(--font-display); font-weight: 600; font-size: 15px; line-height: 1.15; }
+.upg em { font-style: normal; font-size: 12px; color: var(--frost); line-height: 1.2; }
+.upg .cost {
+  grid-column: 1 / -1; margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 5px;
+  background: var(--gold); color: var(--ink-on-gold); border-radius: 10px; padding: 3px 6px;
+  font-family: var(--font-display); font-weight: 700; font-size: 15px; font-variant-numeric: tabular-nums;
+}
+.upg .cost svg { width: 15px; height: 15px; }
+.upg.poor .cost { background: var(--night-2); color: var(--frost); }
+.upg.bought { animation: bought 0.3s ease-out; }
+@keyframes bought { 40% { transform: scale(1.06); border-color: var(--mint); } }
+
+.btn {
+  cursor: pointer; border: none; width: 100%; margin-top: 12px;
+  font-family: var(--font-display); font-weight: 700; font-size: 28px; letter-spacing: 0.06em;
+  color: var(--ink-on-mint); background: var(--mint);
+  border-radius: 20px; padding: 12px 16px; box-shadow: 0 6px 0 #0c8f70;
+}
+.btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #0c8f70; }
+.btn.gold { background: var(--gold); color: var(--ink-on-gold); box-shadow: 0 6px 0 #b98300; }
+.btn.gold:active { box-shadow: 0 2px 0 #b98300; }
+#play { animation: breathe 1.4s ease-in-out infinite alternate; }
+@keyframes breathe { to { transform: scale(1.035); } }
+
+.result { justify-content: center; align-items: center; background: var(--shade); }
+.card {
+  width: 100%; max-width: 340px; text-align: center;
+  background: var(--panel); border: 3px solid var(--panel-line); border-radius: 26px; padding: 22px 18px 20px;
+  animation: cardIn 0.35s cubic-bezier(.2,1.5,.5,1);
+}
+@keyframes cardIn { from { transform: scale(0.7); opacity: 0; } }
+.card h2 { margin: 0 0 4px; font-family: var(--font-display); font-weight: 700; font-size: 34px; line-height: 1.05; color: var(--gold); text-wrap: balance; -webkit-text-stroke: 2px var(--night); paint-order: stroke fill; text-shadow: 0 4px 0 var(--night); }
+#lose .card h2 { color: var(--ember); }
+.card p { margin: 6px 0 0; font-size: 14px; color: var(--frost); line-height: 1.35; }
+.rows { margin: 16px 0 4px; display: flex; flex-direction: column; gap: 8px; }
+.rows div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 15px; }
+.rows div b { font-family: var(--font-display); font-weight: 700; font-size: 20px; font-variant-numeric: tabular-nums; color: var(--ice); }
+.rows div.total { border-top: 2px solid var(--panel-line); padding-top: 8px; }
+.rows div.total b { color: var(--gold); font-size: 26px; }
+
+#fatal { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 24px; font-size: 16px; background: var(--night); }
+
+@media (max-height: 620px) {
+  .logo { margin-top: 1vh; }
+  .logo small { display: none; }
+  .btn { font-size: 22px; padding: 8px 14px; margin-top: 8px; }
+  .upg { padding: 5px 8px; }
+  .upg .cost { margin-top: 3px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #play, #hint .slider i { animation: none; }
+}
+</style>
+<!--/HEAD-->
+</head>
+<body>
+<!--BODY-->
+<div id="app">
+  <div id="stage">
+    <canvas id="c" aria-label="Kartopu Taburu"></canvas>
+    <div id="floats"></div>
+    <div id="count" hidden>1</div>
+
+    <div id="hud" class="gutter">
+      <div class="topbar">
+        <div class="pill" id="lvlPill"><span data-i18n="level">Bölüm</span> <span id="lvlNum">1</span></div>
+        <div class="pill coins" id="coinPill">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#ffc93c" stroke="#b98300" stroke-width="2"/><circle cx="10" cy="10" r="4.5" fill="none" stroke="#b98300" stroke-width="2"/></svg>
+          <span id="coinNum">0</span>
+        </div>
+        <button class="iconbtn" id="mute" type="button" aria-label="Ses">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8v4h3l4 3.5v-11L6 8H3z" fill="currentColor"/><path id="muteWave" d="M13.5 7a4 4 0 0 1 0 6M15.8 4.8a7 7 0 0 1 0 10.4"/><path id="muteX" d="M13.5 7.5l4 5M17.5 7.5l-4 5" hidden/></svg>
+        </button>
+      </div>
+      <div class="track" id="progress" hidden><i id="progressFill"></i></div>
+      <div id="bossbar" hidden>
+        <div class="name" data-i18n="bossName">VOLKAN DEVİ</div>
+        <div class="track"><i id="bossFill"></i></div>
+      </div>
+      <div id="banner"></div>
+    </div>
+
+    <div id="hint" hidden>
+      <div class="slider"><i></i></div>
+      <div data-i18n="hintDrag">Sürükle, taburu yönlendir</div>
+    </div>
+
+    <div id="home" class="screen gutter">
+      <div style="height:46px"></div>
+      <h1 class="logo" style="margin-bottom:0">
+        <span class="l1" data-i18n="title1">KARTOPU</span>
+        <span class="l2" data-i18n="title2">TABURU</span>
+        <small data-i18n="tagline">Şeridini seç · Taburu büyüt · Hattı savun</small>
+      </h1>
+      <div class="spacer"></div>
+      <div class="upgrades" id="upgrades">
+        <button class="upg" type="button" id="upg-start" data-k="start">
+          <svg viewBox="0 0 34 34" aria-hidden="true"><ellipse cx="17" cy="20" rx="10" ry="12" fill="#1c2a59"/><ellipse cx="17" cy="22" rx="6.5" ry="8.5" fill="#fff"/><path d="M8 11a9 8 0 0 1 18 0z" fill="#ffd23f"/><circle cx="17" cy="3.5" r="2.5" fill="#fff"/><path d="M14.5 15.5h5L17 19z" fill="#ff9f1c"/><circle cx="13.5" cy="13.5" r="1.2" fill="#1c2a59"/><circle cx="20.5" cy="13.5" r="1.2" fill="#1c2a59"/></svg>
+          <b></b><em></em><span class="cost"></span>
+        </button>
+        <button class="upg" type="button" id="upg-dmg" data-k="dmg">
+          <svg viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="11" fill="#eefaff" stroke="#9fe3f5" stroke-width="2"/><path d="M11 13a7 7 0 0 1 6-3" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M3 9l5 2M2 17h5M3 25l5-2" stroke="#9fe3f5" stroke-width="2.5" stroke-linecap="round"/></svg>
+          <b></b><em></em><span class="cost"></span>
+        </button>
+        <button class="upg" type="button" id="upg-rate" data-k="rate">
+          <svg viewBox="0 0 34 34" aria-hidden="true"><circle cx="9" cy="17" r="4" fill="#eefaff"/><circle cx="18" cy="17" r="5" fill="#eefaff"/><circle cx="28" cy="17" r="5.5" fill="#eefaff" stroke="#9fe3f5" stroke-width="1.5"/><path d="M3 8h10M5 26h12" stroke="#1fd8a8" stroke-width="2.5" stroke-linecap="round"/></svg>
+          <b></b><em></em><span class="cost"></span>
+        </button>
+        <button class="upg" type="button" id="upg-gold" data-k="gold">
+          <svg viewBox="0 0 34 34" aria-hidden="true"><ellipse cx="17" cy="25" rx="11" ry="4.5" fill="#b98300"/><ellipse cx="17" cy="22" rx="11" ry="4.5" fill="#ffc93c"/><ellipse cx="17" cy="18" rx="11" ry="4.5" fill="#b98300"/><ellipse cx="17" cy="15" rx="11" ry="4.5" fill="#ffc93c"/><ellipse cx="17" cy="11" rx="11" ry="4.5" fill="#b98300"/><ellipse cx="17" cy="8" rx="11" ry="4.5" fill="#ffd96b"/></svg>
+          <b></b><em></em><span class="cost"></span>
+        </button>
+      </div>
+      <button class="btn" id="play" type="button" data-i18n="play">OYNA</button>
+    </div>
+
+    <div id="win" class="screen result gutter" hidden>
+      <div class="card">
+        <h2 data-i18n="winTitle">BÖLÜM TAMAM!</h2>
+        <p id="winSub"></p>
+        <div class="rows">
+          <div><span data-i18n="rowSaved">Ayakta kalan penguen</span><b id="winUnits">0</b></div>
+          <div><span data-i18n="rowKills">Söndürülen kor</span><b id="winKills">0</b></div>
+          <div class="total"><span data-i18n="rowCoins">Kazanılan altın</span><b id="winCoins">0</b></div>
+        </div>
+        <button class="btn gold" id="winBtn" type="button" data-i18n="next">DEVAM</button>
+      </div>
+    </div>
+
+    <div id="lose" class="screen result gutter" hidden>
+      <div class="card">
+        <h2 data-i18n="loseTitle">TABUR DAĞILDI</h2>
+        <p id="loseSub"></p>
+        <div class="rows">
+          <div><span data-i18n="rowKills">Söndürülen kor</span><b id="loseKills">0</b></div>
+          <div class="total"><span data-i18n="rowCoins">Kazanılan altın</span><b id="loseCoins">0</b></div>
+        </div>
+        <p data-i18n="loseTip">Altınlarınla taburu güçlendir, sonra tekrar dene.</p>
+        <button class="btn" id="loseBtn" type="button" data-i18n="retry">TEKRAR DENE</button>
+      </div>
+    </div>
+
+    <div id="fatal" hidden></div>
+  </div>
+</div>
+<script src="vendor/three.min.js"></script>
+<script src="js/game.js"></script>
+<!--/BODY-->
+</body>
+</html>

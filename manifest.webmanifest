@@ -1,0 +1,15 @@
+{
+  "name": "Kartopu Taburu",
+  "short_name": "Kartopu Taburu",
+  "description": "Şeridini seç, penguen taburunu büyüt, kor sürüsüne karşı hattı savun.",
+  "lang": "tr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#0b1437",
+  "theme_color": "#0b1437",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
